@@ -41,6 +41,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "fatfs.h"
+#include "app_main.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -140,15 +141,11 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   printf("STM32H735G-DK!!!\n");
-  while (1)
-  {
-    HAL_GPIO_TogglePin(USER_LED1_GPIO_Port, USER_LED2_Pin);
-    HAL_GPIO_TogglePin(USER_LED2_GPIO_Port, USER_LED1_Pin);
-    HAL_Delay(500);
+  app_main();
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
   /* USER CODE END 3 */
 }
 

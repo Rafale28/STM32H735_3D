@@ -19,6 +19,7 @@ set(MX_Include_Dirs
     ${CMAKE_SOURCE_DIR}/Middlewares/Third_Party/FatFs/src
     ${CMAKE_SOURCE_DIR}/Drivers/CMSIS/Device/ST/STM32H7xx/Include
     ${CMAKE_SOURCE_DIR}/Drivers/CMSIS/Include
+    ${CMAKE_SOURCE_DIR}/MyApp/Inc
 )
 
 # STM32CubeMX generated application sources
@@ -46,6 +47,7 @@ set(MX_Application_Src
     ${CMAKE_SOURCE_DIR}/Core/Src/sysmem.c
     ${CMAKE_SOURCE_DIR}/Core/Src/syscalls.c
     ${CMAKE_SOURCE_DIR}/startup_stm32h735xx.s
+    ${CMAKE_SOURCE_DIR}/MyApp/Src/app_main.cpp
 )
 
 # STM32 HAL/LL Drivers
