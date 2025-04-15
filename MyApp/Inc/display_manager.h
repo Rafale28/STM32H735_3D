@@ -1,4 +1,5 @@
 #pragma once
+#include <stdio.h>
 #include "app_main.h"
 #include "memory_manager.h"
 
@@ -16,17 +17,21 @@ public:
     DisplayManager(MemoryRegion& region, int width, int height) 
         : width(width), height(height), current(0) {
         size_t fb_size = width * height * sizeof(uint32_t);
+        printf("fb1 alloc\n");
         fb[0] = static_cast<uint32_t*>(region.alloc(fb_size));
+        printf("fb2 alloc\n");
         fb[1] = static_cast<uint32_t*>(region.alloc(fb_size));
         initDisplay();
     }
 
     void initDisplay() {
-        clear(0);
+        size_t fb_size = width * height * sizeof(uint32_t);
         __HAL_LTDC_LAYER(&hltdc, 0)->CFBAR = (uint32_t)getDisplayBuffer();
         __HAL_LTDC_RELOAD_CONFIG(&hltdc); // 即時リロード
-         HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);  // DISP = ON
+        HAL_GPIO_WritePin(GPIOD, GPIO_PIN_10, GPIO_PIN_SET);  // DISP = ON
         HAL_GPIO_WritePin(GPIOG, GPIO_PIN_15, GPIO_PIN_SET);  // Backlight = ON
+        memset(fb[0], 0, fb_size);
+        memset(fb[1], 0, fb_size);
     }
 
     uint32_t* getDrawBuffer() {

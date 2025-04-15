@@ -50,6 +50,7 @@ set(MX_Application_Src
     ${CMAKE_SOURCE_DIR}/MyApp/Src/app_main.cpp
     ${CMAKE_SOURCE_DIR}/MyApp/Src/memory_manager.cpp
     ${CMAKE_SOURCE_DIR}/MyApp/Src/display_manager.cpp
+    ${CMAKE_SOURCE_DIR}/MyApp/Src/renderer3d.cpp
 )
 
 # STM32 HAL/LL Drivers
