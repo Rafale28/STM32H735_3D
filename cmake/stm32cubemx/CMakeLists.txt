@@ -48,6 +48,7 @@ set(MX_Application_Src
     ${CMAKE_SOURCE_DIR}/Core/Src/syscalls.c
     ${CMAKE_SOURCE_DIR}/startup_stm32h735xx.s
     ${CMAKE_SOURCE_DIR}/MyApp/Src/app_main.cpp
+    ${CMAKE_SOURCE_DIR}/MyApp/Src/memory_manager.cpp
 )
 
 # STM32 HAL/LL Drivers
