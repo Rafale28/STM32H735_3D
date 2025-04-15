@@ -16,5 +16,6 @@
 #include "usart.h"
 #include "usb_otg.h"
 #include "gpio.h"
+#include "stm32h7xx_hal.h"
 
 int app_main();
