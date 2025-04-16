@@ -160,35 +160,65 @@ float Renderer3D::dot(const Vertex& a, const Vertex& b) {
 
 
 #if USE_FLOAT_Z
-//おおよそ300ms
 void Renderer3D::drawTriangleZ(int x0, int y0, float z0,
                                int x1, int y1, float z1,
                                int x2, int y2, float z2,
                                float brightness) {
-    int min_x = std::max(0, std::min(std::min(x0, x1), x2));
-    int max_x = std::min(zwidth - 1, std::max(std::max(x0, x1), x2));
-    int min_y = std::max(0, std::min(std::min(y0, y1), y2));
-    int max_y = std::min(zheight - 1, std::max(std::max(y0, y1), y2));
+    // ソート（y0 <= y1 <= y2）順にする
+    if (y1 < y0) { std::swap(y0, y1); std::swap(x0, x1); std::swap(z0, z1); }
+    if (y2 < y0) { std::swap(y0, y2); std::swap(x0, x2); std::swap(z0, z2); }
+    if (y2 < y1) { std::swap(y1, y2); std::swap(x1, x2); std::swap(z1, z2); }
 
-    float denom = (float)((x1 - x0)*(y2 - y0) - (y1 - y0)*(x2 - x0));
-    if (denom == 0.0f) return;
+    if (y0 == y2) return;  // 高さ0の三角形は無視
 
-    for (int y = min_y; y <= max_y; y++) {
-        for (int x = min_x; x <= max_x; x++) {
-            float w0 = ((x1 - x)*(y2 - y) - (y1 - y)*(x2 - x)) / denom;
-            float w1 = ((x2 - x)*(y0 - y) - (y2 - y)*(x0 - x)) / denom;
-            float w2 = 1.0f - w0 - w1;
+    auto edge_interp = [](int y0, int y1, int x0, int x1, float z0, float z1, int y) {
+        float t = (float)(y - y0) / (y1 - y0);
+        int x = (int)(x0 + t * (x1 - x0));
+        float z = z0 + t * (z1 - z0);
+        return std::make_pair(x, z);
+    };
 
-            if (w0 >= 0 && w1 >= 0 && w2 >= 0) {
-                float z = z0 * w0 + z1 * w1 + z2 * w2;
-                int index = y * zwidth + x;
-                if (z < zbuffer[index]) {
-                    zbuffer[index] = z;
-                    uint8_t level = (uint8_t)(brightness * 255.0f);
-                    uint32_t color = 0xFF000000 | (level << 16) | (level << 8) | level;
-                    display.getDrawBuffer()[index] = color;
-                }
+    for (int y = y0; y <= y2; y++) {
+        if (y < 0 || y >= zheight) continue;
+
+        // 左右のエッジを決める（v0-v1, v0-v2, v1-v2）
+        int xa, xb;
+        float za, zb;
+
+        if (y < y1) {
+            if (y1 != y0 && y2 != y0) {
+                auto a = edge_interp(y0, y1, x0, x1, z0, z1, y);
+                auto b = edge_interp(y0, y2, x0, x2, z0, z2, y);
+                xa = a.first; za = a.second;
+                xb = b.first; zb = b.second;
+            } else continue;
+        } else {
+            if (y2 != y1 && y2 != y0) {
+                auto a = edge_interp(y1, y2, x1, x2, z1, z2, y);
+                auto b = edge_interp(y0, y2, x0, x2, z0, z2, y);
+                xa = a.first; za = a.second;
+                xb = b.first; zb = b.second;
+            } else continue;
+        }
+
+        if (xa > xb) { std::swap(xa, xb); std::swap(za, zb); }
+        if (xb < 0 || xa >= zwidth) continue;
+
+        float dz = (xb != xa) ? (zb - za) / (xb - xa) : 0.0f;
+        float z = za;
+        int index = y * zwidth + xa;
+
+        uint8_t level = (uint8_t)(brightness * 255.0f);
+        uint32_t color = 0xFF000000 | (level << 16) | (level << 8) | level;
+
+        for (int x = xa; x <= xb; x++) {
+            if (x < 0 || x >= zwidth) { z += dz; index++; continue; }
+            if (z < zbuffer[index]) {
+                zbuffer[index] = z;
+                display.getDrawBuffer()[index] = color;
             }
+            z += dz;
+            index++;
         }
     }
 }
