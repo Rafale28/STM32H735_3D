@@ -8,39 +8,38 @@
 static inline size_t align32(size_t size) {
     return (size + 31) & ~31;
 }
-// メモリ領域管理（例：HyperRAMやSRAM）
+
 class MemoryRegion {
 public:
-    MemoryRegion(uint32_t base_addr, size_t size);
-
-    void* alloc(size_t size);
-    void reset() { offset = 0; }
-    size_t getUsed() const { return offset; }
-    size_t getFree() const { return capacity - offset; }
-
-private:
-    uint8_t* base;
-    size_t capacity;
-    size_t offset;
-};
-
-// メモリマネージャ：任意の領域を使ってバッファ管理
-class MemoryManager {
-public:
-    MemoryManager() = default;
-    MemoryManager(uint32_t base_addr, size_t size) {
-        init(base_addr, size);
+    MemoryRegion(const char* label, uint32_t base_addr, size_t total_size);
+    ~MemoryRegion() {
+        delete[] blocks;  // メモリリーク回避
     }
-    MemoryManager(MemoryRegion& region, size_t size);
-    void init(uint32_t start_addr, size_t size);
-    void* alloc(size_t size);
-    void reset() { offset = 0; }
-    size_t getUsed() const { return offset; }
-    size_t getFree() const { return capacity - offset; }
-    void* getBase() const { return base; }
+    void* alloc(size_t size, const char* b_label = nullptr);
+    void free(void* ptr);
+    void info() const;
 
 private:
-    uint8_t* base = nullptr;
-    size_t capacity = 0;
-    size_t offset = 0;
+    struct Block {
+        uint8_t* ptr;
+        size_t size;
+        bool used;
+        const char* label = nullptr;
+    };
+
+    static constexpr size_t MIN_BLOCK_SIZE = 4096;  //4KiB Alignする
+
+    size_t align_up(size_t val, size_t align) {
+        return (val + align - 1) & ~(align - 1);
+    }
+
+    const char* label;
+    uint8_t* base;
+    size_t size;
+
+    Block* blocks = nullptr;
+    size_t block_count = 0;
+    size_t max_blocks = 0;
+
+    void merge_free_blocks();
 };
