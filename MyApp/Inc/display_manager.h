@@ -18,9 +18,9 @@ public:
         : width(width), height(height), current(0) {
         size_t fb_size = width * height * sizeof(uint32_t);
         printf("fb1 alloc\n");
-        fb[0] = static_cast<uint32_t*>(region.alloc(fb_size));
+        fb[0] = static_cast<uint32_t*>(region.alloc(fb_size, "Framebuffer 0"));
         printf("fb2 alloc\n");
-        fb[1] = static_cast<uint32_t*>(region.alloc(fb_size));
+        fb[1] = static_cast<uint32_t*>(region.alloc(fb_size, "Framebuffer 1"));
         initDisplay();
     }
 

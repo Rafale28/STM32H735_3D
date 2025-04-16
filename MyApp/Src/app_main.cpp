@@ -35,11 +35,8 @@ void open_testfile() {
 
 int app_main() {
     printf("app Main!!!\n");
-    printf("HyperRam alloc\n");
-    MemoryRegion HyperRam(OCTOSPI2_BASE, 16 * MiB);
-    printf("AxiSram alloc\n");
-    MemoryRegion AxiSram(D1_AXISRAM_BASE, 128 * KiB);
-    printf("DispManager\n");
+    MemoryRegion HyperRam("Hyper RAM", OCTOSPI2_BASE, 16 * MiB);
+    MemoryRegion AxiSram("AXI SRAM", D1_AXISRAM_BASE, 128 * KiB);
     DisplayManager disp(HyperRam, 480, 272);
     Renderer3D render(HyperRam, disp);
 
@@ -70,19 +67,21 @@ int app_main() {
     float angle_z = 0.0f;
     render.loadModel("delo.obj");
     printf("draw!!\n");
-    render.draw(angle_x, angle_y, angle_z, 35.0f, 240, 250);
+    render.draw(angle_x, angle_y, angle_z, 40.0f, 240, 280);
     disp.switchBuffer();
+    HyperRam.info();
     while (1) {
         disp.clear(COLOR_BLACK);
         angle_y += 0.06f;  // 毎フレーム少しずつ回す
         if (angle_y > 2.0f * 3.1415926f) angle_y -= 2.0f * 3.1415926f;
-        DWORD start = HAL_GetTick(); 
-        render.draw(angle_x, angle_y, angle_z, 35.0f, 240, 250);
-        printf("Draw Time %ldms\n", HAL_GetTick() - start);
+        //DWORD start = HAL_GetTick(); 
+        render.draw(angle_x, angle_y, angle_z, 40.0f, 240, 280);
+        //printf("Draw Time %ldms\n", HAL_GetTick() - start);
         disp.switchBuffer();
         HAL_GPIO_TogglePin(USER_LED1_GPIO_Port, USER_LED2_Pin);
         HAL_GPIO_TogglePin(USER_LED2_GPIO_Port, USER_LED1_Pin);
         //HAL_Delay(50);
+        //touch_read();
     }
     return 0;
 }

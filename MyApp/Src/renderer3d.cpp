@@ -5,9 +5,9 @@ void Renderer3D::setZBuffer(int w, int h) {
     zwidth = w;
     zheight = h;
 #if USE_FLOAT_Z
-    zbuffer = static_cast<float*>(region.alloc(sizeof(float) * w * h));
+    zbuffer = static_cast<float*>(region.alloc(sizeof(float) * w * h, "Z-Buffer"));
 #else
-    zbuffer = static_cast<int32_t*>(region.alloc(sizeof(int32_t) * w * h));
+    zbuffer = static_cast<int32_t*>(region.alloc(sizeof(int32_t) * w * h, "Z-Buffer"));
 #endif
 }
 
@@ -37,8 +37,8 @@ bool Renderer3D::loadModel(const char* filename) {
     f_lseek(&file, 0);  // 戻す
 
     // 領域確保
-    vertices = static_cast<Vertex*>(region.alloc(sizeof(Vertex) * vcnt));
-    faces = static_cast<Face*>(region.alloc(sizeof(Face) * fcnt));
+    vertices = static_cast<Vertex*>(region.alloc(sizeof(Vertex) * vcnt, "Vertex"));
+    faces = static_cast<Face*>(region.alloc(sizeof(Face) * fcnt, "Face"));
     vcount = 0;
     fcount = 0;
     int loadcnt = 0;
